@@ -1,4 +1,5 @@
 const db = require('./db')
+const inquirer = require('inquirer')
 
 module.exports.add = async (title) => {
   const task = {
@@ -20,7 +21,19 @@ module.exports.clear = async () => {
 module.exports.show = async () => {
   // 读取之前的 list
   const list = await db.read()
-  list.forEach((item, index) => {
-    console.log(`${item.done ? '[√]' : '[x]'} ${index + 1}：${item.title}`)
-  })
+  inquirer
+    .prompt({
+      type: 'list',
+      name: 'index',
+      message: '请选择需要操作的任务',
+      choices: list.map((item, index) => {
+        return {
+          name: `${item.done ? '[√]' : '[x]'}${index + 1}：${item.title}`,
+          value: index.toString()
+        }
+      })
+    })
+    .then((answer) => {
+      console.log(answer.index)
+    })
 }
