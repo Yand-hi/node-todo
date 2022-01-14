@@ -4,7 +4,7 @@ const inquirer = require('inquirer')
 module.exports.add = async (title) => {
   const task = {
     title: title,
-    done: true
+    done: false
   }
   // 读取之前的任务
   const list = await db.read()
@@ -31,7 +31,7 @@ module.exports.show = async () => {
         return {
           name: `${item.done ? '[√]' : '[x]'}${index + 1}：${item.title}`, value: index.toString()
         }
-      }), {name: '+ 创建', value: '-2'}, {name: 'x 取消', value: '-1'}]
+      }), {name: ' + 添加', value: '-1'}, {name: ' x 取消', value: '-2'}]
     }).then((answer) => {
     const index = parseInt(answer.index)
     if (index >= 0) {
@@ -80,10 +80,18 @@ module.exports.show = async () => {
             break
         }
       })
-    } else if (index === -2) {
-      // 创建任务
-    } else {
-      // 取消选择
+    } else if (index === -1) {
+      // 添加任务
+      inquirer
+        .prompt({
+          type: 'creat',
+          name: 'title',
+          message: '请输入任务名称',
+        }).then((answer4) => {
+        list.push({title: answer4.title, done: false})
+        db.write(list)
+        console.log('添加成功')
+      })
     }
   })
 }
