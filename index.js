@@ -21,17 +21,17 @@ module.exports.clear = async () => {
 module.exports.show = async () => {
   // 读取之前的 list
   const list = await db.read()
+  // 切换进行操作任务
   inquirer
     .prompt({
       type: 'list',
       name: 'index',
       message: '请选择需要操作的任务',
-      choices: list.map((item, index) => {
+      choices: [...list.map((item, index) => {
         return {
-          name: `${item.done ? '[√]' : '[x]'}${index + 1}：${item.title}`,
-          value: index.toString()
+          name: `${item.done ? '[√]' : '[x]'}${index + 1}：${item.title}`, value: index.toString()
         }
-      })
+      }), {name: '+ 创建', value: '-2'}, {name: 'x 取消', value: '-1'}]
     })
     .then((answer) => {
       console.log(answer.index)
