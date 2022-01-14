@@ -4,7 +4,7 @@ const inquirer = require('inquirer')
 module.exports.add = async (title) => {
   const task = {
     title: title,
-    done: false
+    done: true
   }
   // 读取之前的任务
   const list = await db.read()
@@ -32,8 +32,58 @@ module.exports.show = async () => {
           name: `${item.done ? '[√]' : '[x]'}${index + 1}：${item.title}`, value: index.toString()
         }
       }), {name: '+ 创建', value: '-2'}, {name: 'x 取消', value: '-1'}]
-    })
-    .then((answer) => {
-      console.log(answer.index)
-    })
+    }).then((answer) => {
+    const index = parseInt(answer.index)
+    if (index >= 0) {
+      // 改变任务状态
+      inquirer
+        .prompt({
+          type: 'list',
+          name: 'action',
+          message: '请选择操作',
+          choices: [
+            {name: '标记为完成', value: 'markAsDone'},
+            {name: '标记为未完成', value: 'markAsUnDone'},
+            {name: '修改标题', value: 'updateTitle'},
+            {name: '删除', value: 'remove'},
+            {name: '退出', value: 'quit'},
+          ]
+        }).then((answer2) => {
+        switch (answer2.action) {
+          case 'markAsDone':
+            list[index].done = true
+            db.write(list)
+            console.log('已标记为完成')
+            break
+          case 'markAsUnDone':
+            list[index].done = false
+            db.write(list)
+            console.log('已标记为未完成')
+            break
+          case 'remove':
+            list.splice(index, 1)
+            db.write(list)
+            console.log('已删除')
+            break
+          case 'updateTitle':
+            inquirer
+              .prompt({
+                type: 'input',
+                name: 'title',
+                message: '请输入标签名',
+                default: list[index].title
+              }).then((answer3) => {
+              list[index].title = answer3.title
+              db.write(list)
+              console.log('修改成功')
+            })
+            break
+        }
+      })
+    } else if (index === -2) {
+      // 创建任务
+    } else {
+      // 取消选择
+    }
+  })
 }
