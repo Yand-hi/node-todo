@@ -11,5 +11,7 @@ $ yarn add node-todoli
 ```
 ## Run
 ```
-$ d
+$ do
 ```
+
+### [npm](https://www.npmjs.com/package/node-todoli)👈
